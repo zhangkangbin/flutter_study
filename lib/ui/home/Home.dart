@@ -16,20 +16,19 @@ class Home extends StatefulWidget {
 }
 
 class HomeState extends BaseState<Home> {
-  List listData = new List();
+  List listData = [];
   ScrollController _scrollController = new ScrollController();
   var httpClient = new HttpClient();
   int index = 1;
   bool isPosting = true;
 
   Future _getData() async {
-
     setState(() {
       isPosting = true;
     });
     print("------------index---" + index.toString());
-    var result = await httpClient
-        .getUrl(Uri.parse("https://movie.douban.com/j/search_subjects?type=tv&tag=%E7%83%AD%E9%97%A8&sort=recommend&page_limit=10&page_start=$index"));
+    var result = await httpClient.getUrl(Uri.parse(
+        "https://movie.douban.com/j/search_subjects?type=tv&tag=%E7%83%AD%E9%97%A8&sort=recommend&page_limit=10&page_start=$index"));
     var response = result.close();
     response.then((HttpClientResponse response) {
       setState(() {
@@ -49,20 +48,20 @@ class HomeState extends BaseState<Home> {
 
           if (map == null) return;
 
- /*         int errorCode = map["errorCode"];
+          /*         int errorCode = map["errorCode"];
 
           if(errorCode!=0) return;*/
 
-           var data=  map['subjects'];
-          if ( data== null) return;
-
+          var data = map['subjects'];
+          if (data == null) return;
 
           setState(() {
             index++;
+            listData=new List.from(listData);
             listData.addAll(data);
           });
 
-          print(listData.length);
+          print("listData length" + listData.length.toString());
         });
       }
     });
@@ -91,23 +90,25 @@ class HomeState extends BaseState<Home> {
         title: new Text("豆瓣 Api"),
       ),
       body: ListView.builder(
-        itemCount: listData.length+1 ,
+        itemCount: listData.length + 1,
         itemBuilder: (context, index) {
-
           if (index == listData.length) {
             print("--------------_buildProgressIndicator--------------");
             return _buildProgressIndicator();
           } else {
             var data = listData[index];
-            return new Column(
-              children: <Widget>[
-             //    new Text(data["title"]),
-                new Image.network(
-                  data["cover"],
-                  height: 300.0,
-                  fit: BoxFit.fitWidth,
-                ),
-              ],
+            return new Card(
+              margin: const EdgeInsets.all(10.0),
+              child: new Column(
+                children: <Widget>[
+                  new Text(data["title"]),
+                  new Image.network(
+                    data["cover"],
+                    width: double.infinity,
+                    fit: BoxFit.fill,
+                  ),
+                ],
+              ),
             );
           }
         },
@@ -121,7 +122,7 @@ class HomeState extends BaseState<Home> {
       padding: const EdgeInsets.all(8.0),
       child: new Center(
         child: new Opacity(
-          opacity: isPosting?1.0:0.0, //透明度
+          opacity: isPosting ? 1.0 : 0.0, //透明度
           child: new CircularProgressIndicator(),
         ),
       ),
